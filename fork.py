@@ -1,6 +1,5 @@
-from pybricks.ev3devices import Motor
-from pybricks.parameters import Port
 from pybricks.ev3devices import Motor,  ColorSensor, GyroSensor, UltrasonicSensor
+from pybricks.parameters import Port, Color
 
 
 class Fork:
@@ -10,18 +9,19 @@ class Fork:
         self.degreetoCm = 0.025
         self.levelinCm = 4.6
         self.level = 0
-        self.islift = False 
-        self.cs = ColorSensor(Port.S2)
+        self.islift = False
+        self.colorsensor = ColorSensor(Port.S2)
 
-    def colors(valami):
-        szinek = {
-            Color.BLACK:'B',
-            Color.WHITE:'W',
-        }
-        return szinek.get(valami,'X')
+    def colors(self,valami):
+        a=''
+        if self.colorsensor.rgb()[0]<5 :
+            a="B"
+        else :
+            a="W"
+        return a
 
     def colorcheck(self,color):
-        if self.colors(self.cs.color) == color:
+        if self.colors(color) == color:
             return True
         return False
 
@@ -33,8 +33,8 @@ class Fork:
 
     def lift(self):
         if self.islift:
-            self.fork.run_angle(100, self.liftdistanceCm / self.degreetoCm)
+            self.fork.run_angle(100, 10)
             self.islift = False
         else:
-            self.fork.run_angle(-100, self.liftdistanceCm / self.degreetoCm)
+            self.fork.run_angle(-100,10)
             self.islift = True

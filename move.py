@@ -23,7 +23,8 @@ class Move:
         self.gs=GyroSensor(Port.S4)            
         self.gs.reset_angle(0)
         self.mysensor = UltrasonicSensor(Port.S3)
-        self.cordinates = [0]
+        self.cordinates = 0
+        self.valami = True
     
     def moveforward(self, distanceinCm):
         self.robot.straight(distanceinCm)
@@ -39,32 +40,42 @@ class Move:
         self.robot.straight(self.timer.time * -100)
 
     def movetoWH(self):
-        self.moveforward(700)
+        self.moveforward(600)
     
     def rollback(self,tavolsag):
-        self.robot.straight(tavolsag)
-        tourn(-90)
-        self.robot.drive(100,50)
-        while True:
-            if mysensor.distance()<115:
-                self.robot.stop
+        
+        self.robot.straight(tavolsag*-1)
+        self.tourn(-90)
+        if self.valami:
+            self.fork.movetolevel(1)
+            self.valami = False
+        else :
+            self.fork.movetolevel(0)
+        mehet = True
+        while mehet:
+            self.robot.straight(20)
+            if self.mysensor.distance()<115:
+                mehet = False
         self.fork.lift()
-        self.robot.straight(-800)
-        tourn(90)
+        self.robot.straight(-600)
+        self.tourn(0)
+        self.fork.movetolevel(0)
     
     def movetocord(self,x,color):
-        if x > self.cordinates[0]:
-            tourn(-90)
-            self.robot.straight((x-self.cordinates[0])*self.boxsize)
-            tourn(90)
+        if x > self.cordinates:
+            self.tourn(-90)
+            self.robot.straight((x-self.cordinates)*self.boxsize)
+            self.tourn(0)
 
-    def colorcheck(self,szin):
+
+    def colorcheck(self,x,szin):
         change = False
-        self.robot.straight(50)
+        self.robot.straight(60)
         if self.fork.colorcheck(szin):
-            self.fork.lift
+            wait(500)
+            self.fork.lift()
             change = True
         else :
             self.my_WH.setboxcolor(x,szin)
-        self.robot.straight(-100)
+        self.robot.straight(-60)
         return change
